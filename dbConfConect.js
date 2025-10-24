@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var logger = require('winston');
 var nameModuleLogger = "dbConfConcect : ";
 
-const dbUri = process.env.BD_DINAMITA || 'mongodb://localhost:27017/dinamita';
+const dbUri = process.env.BD_DINAMITA || 'mongodb://127.0.0.1:27017/dinamita';
 
 // --- CONEXIÓN MODERNA CON ASYNC/AWAIT ---
 const connectDB = async () => {
