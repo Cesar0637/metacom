@@ -1,5 +1,5 @@
 /**
- * Module dependencies
+ * app.js
  */
 const express = require('express');
 const http = require('http');
@@ -16,8 +16,9 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const errorHandler = require('errorhandler');
 const nocache = require('nocache');
+const mongoose = require('mongoose');
 
-// Configuración Winston
+// Config Winston
 const logger = winston.createLogger({
     level: 'info',
     format: winston.format.combine(
@@ -31,7 +32,7 @@ const logger = winston.createLogger({
     ]
 });
 
-// Importar rutas
+// Importar rutas y controladores
 const routesIndex = require('./routes/index');
 const routesLobby = require('./routes/lobby');
 const routesMesa = require('./routes/mesas');
@@ -39,45 +40,39 @@ const routesReglas = require('./routes/reglas');
 const routesLogin = require('./routes/login');
 const routesPanel = require('./routes/panel');
 const routesSalir = require('./routes/salir');
-
 const patrocinadorController = require('./controllers/Patrocinador');
 const sioIndex = require('./routes/sio/index');
 
 const app = express();
 
-// --- Configuración servidor ---
+// --- Configuración básica ---
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.use(favicon(path.join(__dirname, '/public/images/favicon.ico')));
-
-// Logger de accesos
 const accessLogStream = fs.createWriteStream(path.join(__dirname, '/logs/access.log'), { flags: 'a' });
 app.use(morgan('dev', { stream: accessLogStream }));
-
 app.use(methodOverride());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(nocache());
 
-// --- Configuración de Sesiones ---
+// --- Sesiones ---
 const sessionMiddleware = session({
     secret: 'QYxIiQd3',
     resave: false,
-    saveUninitialized: true, // asegura que la cookie se envie
-    store: MongoStore.create({
-        mongoUrl: 'mongodb://127.0.0.1:27017/dinamita'
-    }),
-    cookie: { maxAge: 864000000 } // 10 días
+    saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: 'mongodb://127.0.0.1:27017/dinamita' }),
+    cookie: { maxAge: 864000000 }
 });
 app.use(sessionMiddleware);
 
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- Rutas ---
+// Rutas
 app.use(routesIndex);
 app.use(routesLobby);
 app.use(routesMesa);
@@ -89,35 +84,36 @@ app.use(routesSalir);
 app.use(pmx.expressErrorHandler());
 if (app.get('env') === 'development') app.use(errorHandler());
 
-// --- Servidor y Socket.IO ---
-const server = http.createServer(app).listen(app.get('port'), () => {
-    logger.info('Express server listening on port ' + app.get('port'));
-});
-
-const io = require('socket.io')(server, {
-    cors: { origin: "*", methods: ["GET", "POST"] }
-});
-
-// Compartir sesión con Socket.IO
-io.use((socket, next) => {
-    sessionMiddleware(socket.request, socket.request.res || {}, next);
-});
-
-// Estado global
-const usuariosConectadosLobby = {};
-const statusMesas = {
-    'mesa-1': false, 'mesa-2': false, 'mesa-3': false, 'mesa-4': false, 'mesa-5': false,
-    'mesa-6': false, 'mesa-7': false, 'mesa-8': false, 'mesa-9': false, 'mesa-10': false
-};
-
-// --- Inicialización de la app asincrónica ---
+// --- Conexión a MongoDB y arranque del servidor ---
 (async () => {
     try {
-        // Consultas en paralelo
+        await mongoose.connect('mongodb://127.0.0.1:27017/dinamita', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000
+        });
+        logger.info('MongoDB conectado');
+
+        // Crear servidor HTTP
+        const server = http.createServer(app).listen(app.get('port'), () => {
+            logger.info('Servidor Express escuchando en puerto ' + app.get('port'));
+        });
+
+        // Socket.IO
+        const io = require('socket.io')(server, { cors: { origin: "*", methods: ["GET", "POST"] } });
+        io.use((socket, next) => sessionMiddleware(socket.request, socket.request.res || {}, next));
+
+        // Estado global
+        const usuariosConectadosLobby = {};
+        const statusMesas = {
+            'mesa-1': false, 'mesa-2': false, 'mesa-3': false, 'mesa-4': false, 'mesa-5': false,
+            'mesa-6': false, 'mesa-7': false, 'mesa-8': false, 'mesa-9': false, 'mesa-10': false
+        };
+
+        // Inicialización de sockets y datos
         const listPatrocinadoresDefault = await patrocinadorController.patrocinadores.buscarPatrocinadoresDefault();
         const mesas = await sioIndex.obtenerListaMesas();
 
-        // Inicializar sockets
         sioIndex.monitorIndex(io, usuariosConectadosLobby);
         require('./routes/sio/historia')(io, sessionMiddleware);
         require('./routes/sio/lobby')(io, sessionMiddleware, usuariosConectadosLobby, mesas, listPatrocinadoresDefault, statusMesas);
@@ -128,5 +124,6 @@ const statusMesas = {
 
     } catch (err) {
         logger.error('Error inicializando la app:', err);
+        process.exit(1); // termina si no hay conexión a Mongo
     }
 })();
