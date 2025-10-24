@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>METACON | Simulador de Metacognición Económica</title>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico">
+
+  <!-- ✅ CSS -->
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="/js/plugins/jquery-growl/jquery.growl.css"/>
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/animate.css">
+</head>
+
+<body class="index">
+  <div class="container-fluid back">
+    <div class="container">
+      
+      <div class="col-sm-12 col-md-6 no-padding">
+        <span class="text1">SIMULADOR DE METACOGNICIÓN ECONÓMICA</span>
+        <span class="text2">VIAJE EN EL TIEMPO Y DESCUBRA COMO CAMBIA SU CONDUCTA</span>
+        <img class="img-responsive hidden-xs hidden-sm hidden-md" src="img/metacon_inicio.jpg">
+        <img class="img-responsive hidden-lg" src="img/metacon_inicio2.jpg">
+      </div>
+      
+      <div class="col-sm-12 col-md-6">
+        <form id="form-index" role="form" autocomplete="off" accept-charset="utf-8">
+          <input id="nick" name="nick" type="text" 
+            class="input-sup form-control input-sm" 
+            placeholder="Escribe un pseudónimo" required maxlength="25">
+
+          <button type="submit" id="submit" class="btn-ingresa"></button>
+        </form>
+
+        <img class="img-responsive sup" src="img/metacon_ingresa.png">
+
+        <div class="creditos">
+          <p>Créditos:</p>
+          <p>Imagen: J.J. Grandville</p>
+          <p>Música: Edward Taylor – Neverhood.</p>
+        </div>
+
+        <img class="img-responsive" src="img/metacon_ingresa.jpg">
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ ORDEN CORRECTO DE SCRIPTS -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="/js/plugins/jquery-growl/jquery.growl.js"></script>
+
+  <!-- ✅ Tu script principal (ya incluye io()) -->
+  <script src="/js/inicio.js?v=final12q2q3"></script>
+</body>
+</html>

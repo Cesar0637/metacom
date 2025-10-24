@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>METACON | Historia</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/plugins/jquery-growl/jquery.growl.css"/>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+</head>
+<body class="historia">
+<div class="container">
+    <form id="form-historia" role="form" accept-charset="utf-8" autocomplete="off">
+        <div class="row no-margin">
+            <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12 no-padding">
+                <div class="fondo-1 p-top-3em">
+                    <h1 class="text-center no-margin-top titulo">EVOLUCIÓN Y EVALUACIÓN</h1>
+                    <div style="margin: 0 auto; width: 80%;">
+                        <img style="margin: 3em auto;" src="img/historia/m_de.png" alt="Evolución" class="img-responsive">
+                    </div>
+                    <div class="text-center texto-derecho textos-generales">
+                        <p>Los cambios en la estructura económica generan cambios en la conducta humana.</p>
+                        <p>Cuando las reglas favorecen comportamiento agresivo, es más probable que ese comportamiento florezca.</p>
+                        <p>Es urgente hacer conciencia. De lo contrario nuestra actual estructura te encadenará.</p>
+                    </div>
+                    <div style="margin: 0 auto; width: 80%;">
+                        <img style="margin: 5em auto 0px auto;" src="img/historia/marco-inferior.png" alt="Evolución" class="img-responsive">
+                    </div>
+                </div>
+                <div class="fondo-2">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div>
+                                <input type="number" class="form-control input-sm edad" id="edad" name="edad"
+                                       required="required" placeholder="Escribe tu edad" maxlength="3"/>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div>
+                                <img src="img/historia/sexo.png" class="img-responsive sexo">
+                            </div>
+                            <div class="text-center">
+                                <span>
+                                    <label class="radio-inline">
+                                        <img src="img/historia/masculino.png" alt="Masculino" style="display: block;">
+                                        <input type="radio" id="option-1" name="option" value="Masculino" required="required"> Masculino
+                                    </label>
+                                    <label class="radio-inline">
+                                        <img src="img/historia/femenino.png" alt="Femenino" style="display:block;">
+                                        <input type="radio" id="option-2" name="option" value="Femenino" required="required"> Femenino
+                                    </label>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <div class="checkbox-inline">
+                                <input id="terminos" name="terminos" type="checkbox" required="required"/> 
+                                <a href="#" data-toggle="modal" data-target="#modalPoliticas">Acepto pólitica de datos y comportamiento</a>
+                            </div>
+                        </div>
+                        <audio autoplay loop controls>
+                            <source src="music/lobby_metacon.mp3" type="audio/mpeg">
+                            <source src="music/lobby_metacon.ogg" type="audio/ogg">
+                            Tu navegador no soporta elementos audio
+                        </audio>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12 text-center border-izq textos-generales">
+                <div style=" margin: 2em auto 0 auto; width: 80%;">
+                    <img style="margin: 0 auto;" src="img/historia/m_t.png" alt="Evolución" class="img-responsive">
+                </div>
+                <p>Gran animal es la economía</p> 
+                <p>que sin despierta conciencia</p>
+                <p>se alimenta de impaciencia</p>
+                <p>y hasta a sus amos se comía</p>
+                <br/>
+                <p>¿Quién es dueño de tu vida?</p>
+                <p>El ansia voraz y salvaje, </p>
+                <p>de correr a lo que te pida</p>
+                <p>tu ignorancia sin peaje</p>
+                <br /> 
+                <p>Despierta a la realidad, </p>
+                <p>y encuentra tu felicidad.</p>
+                <p>Escapa el consumo de tu día</p>
+                <p>repasando la meta-economía.</p> 
+                <button id="btnIntroLobby" name="btnIntroLobby" type="submit" class="wow tada" style="background-color: inherit;border: none;">
+                    <img src="img/btn_siguiente.png" alt="">
+                </button>
+                <div style="margin: 0 auto; width: 70%;">
+                    <img style="margin: 42px auto 1em auto;" src="img/historia/m_iz.png" class="img-responsive">
+                </div>
+            </div>  
+        </div>
+    </form>
+</div>
+
+<section id="footerSection">
+    <%- include('partials/footer'); %>
+</section>
+
+<div class="modal fade" id="modalPoliticas" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Política de datos y comportamiento</h4>
+      </div>
+      <div class="modal-body">
+        <p>METACON es un simulador que registra y evalúa la conducta anónima de los usuarios. El programa utiliza únicamente datos demográficos generales (sexo y edad), dejando de lado cualquier otra información que pudiera ser vinculada a tu persona.</p>
+        <p>Si eliges contactarnos, mantendremos 100% confidencial la información de tu mensaje, y en ningún momento recibirás información adicional o promocional a la que solicites explícitamente.</p>
+        <p>Las empresas que patrocinan METACON están convencidas que crear conciencia ética entre la juventud es fundamental para el desarrollo próspero de la nación. Las imágenes de marcas pertenecen a las empresas y su uso está legalmente restringido.</p>
+        <p>Considerando que tu identidad es anónima completamente para nosotros, te invitamos a utilizar la plataforma de forma responsable y respetuosa para con otros usuarios.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script async="async" src="js/plugins/jquery-growl/jquery.growl.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/historia.js"></script>
+<script src="js/wow.js"></script>
+
+<script>
+new WOW().init();
+
+</script>
+</body>
+</html>

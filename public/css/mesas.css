@@ -1,0 +1,119 @@
+@CHARSET "UTF-8";
+
+#reglas {
+	border: 1px dashed;
+	padding: 10px;
+}
+
+#reglas a {
+	text-decoration: none;;
+}
+
+#name-jugador {
+	font-size: 20px;
+	padding: 10px;
+	font-style: italic;
+	color: #09415C;
+}
+
+.puntos {
+	border: 1px dashed;
+	padding: 10px;
+}
+
+.puntos span {
+	display: block;
+}
+
+.mr-bottom {
+	margin-bottom: 30px;
+}
+
+.mr-top {
+	margin-top: 30px;
+}
+
+#tablero {
+	border-radius: 3px;
+	padding: 0;
+	text-align: right;
+	display: block;
+/* 	background-image: url('http://blog.oregonlive.com/oldtown/2009/03/Google%20Maps.jpg'); */
+/*     background-size: contain; */
+/*     background-repeat: no-repeat; */
+	/*     width: 500px; */
+}
+
+
+#title-mesa {
+	font-size: 20px;
+}
+
+#tablero_casillas .casilla {
+	cursor: pointer;
+	border-color: red;
+	border-style: solid;
+	border-width: 1px;
+}
+
+.casilla:hover {
+	-webkit-box-shadow: 5px 5px 4px 0px rgba(50, 50, 50, 0.8);
+	-moz-box-shadow: 5px 5px 4px 0px rgba(50, 50, 50, 0.8);
+	box-shadow: 5px 5px 4px 0px rgba(50, 50, 50, 0.8);
+}
+
+#timer {
+	padding: 10px;
+	font-size: 30px;
+	background-color: #419BB0;
+	color: #FFF;
+}
+
+
+.title-user {
+	font-size: 18px;
+	padding: 5px;
+	color: #FFF;
+}
+
+#title-jugador {
+	background-color: #FA5858;
+}
+
+#title-observador {
+	background-color: #FA5858;
+}
+
+.estado {
+    border: 1px dashed;
+    padding: 8px 0px 8px 0px;
+    background-color: #FAFAFA;
+}
+
+#observadores {
+    max-height: 300px;
+    padding: 10px 0px 0px 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#observadores span {
+    display: block;
+}
+
+.turno {
+    background-color: #526773;
+    color: #FFF;
+}
+
+.box {
+    -webkit-box-shadow: 3px 3px 20px 0px rgba(49, 50, 50, 0.6);
+    -moz-box-shadow: 3px 3px 20px 0px rgba(49, 50, 50, 0.6);
+    box-shadow: 3px 3px 20px 0px rgba(49, 50, 50, 0.6);
+}
+
+ @media screen and (max-width:767px) {
+    #datos-usuario div {
+        display: inline-block;
+        font-size: 12px;
+    }

@@ -1,0 +1,51 @@
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) --> 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<!-- jQuery ui -->
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/plugins/jquery-growl/jquery.growl.js"></script>
+<script type="text/javascript">
+	//variables a utilizar
+	var socket = null, mesa = null, width = 0, jugador = null;
+	//elements html
+	var e_nombreJugador = $('#name-jugador');
+	var e_puntosUsuario = $('#puntos-usuario');
+	var e_epoca = $('#epoca');
+	var e_cronometro = $('.cronometro');
+	var e_total_puntos = $('#total-puntos');
+	var e_content_tablero = $('#content-tablero');
+	var e_tablero = $('#tablero');
+	var e_jugadores = $('#jugadores');
+	var e_observadores = $('#observadores');
+	var e_btn_iniciar_juego = $('#iniciar-juego');
+	var e_total_capturas = $('#total-capturas');
+	//modal
+	var e_modal_title = $('.modal-title #ganadorName');
+	var e_modal_creditos_usuario = $('.modal-body #creditos-usuario');
+	var e_modal_creditos_mesa = $('.modal-body #creditos-mesa');
+	var e_modal_ajustar_juego = $('.modal-body #ajustar-juego');
+	var e_timer_reset_game = $('#timer-reset-game');
+	//chat
+	var e_chat = $('.chat');
+	var e_chatMensajes = $('.chatMensajes');
+	var e_content_chat = $('#content-chat');
+	var e_btn_send_msg = $('#btn-send-msg');
+	var e_input_msg = $('#input-msg');
+</script>
+
+<!--preloader-->
+<script>
+	$(window).load(function(){
+		$('#status-preloader').fadeOut(); // will first fade out the loading animation
+        $('#preloader').delay(500).fadeOut('slow'); // will fade out the white DIV that covers the website.
+        $('body').delay(500).css({'overflow':'visible'});
+	});
+</script>
+
+<!-- sio -->
+<script src="../js/mesas/sio.min.js"></script>
+<!-- game -->
+<script src="../js/mesas/game.min.js"></script>
+<!-- socket -->
+<script src="/socket.io/socket.io.js"></script>

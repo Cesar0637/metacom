@@ -1,0 +1,89 @@
+<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			 
+	
+	<div class="row">
+		<ol class="breadcrumb">
+			<li><a href="#"><span class="glyphicon glyphicon-home"></span></a></li>
+			<li class="active">Usuarios</li>
+		</ol>
+	</div><!--/.row-->
+	
+	<div class="row">
+		<div class="col-lg-12">
+			<h1 class="page-header">Administracion de Usuarios</h1>
+		</div>
+	</div><!--/.row-->
+	
+	<%- include('blockOptions'); %>
+	
+	
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<div class="panel panel-default">
+					<div class="panel-heading"><span class="glyphicon glyphicon-cog"></span> Configurar puntos iniciales</div>
+					<div class="panel-body">
+						<div class="col-md-4 col-sm-8">
+							<form role="form" id="formUpdatePuntos">
+								<div class="form-group">
+									<label for="txtPuntos">Ingrese el numero de puntos:</label>
+									<input type="number" id="txtPuntos" name="txtPuntos" placeholder="Ej. 300" required="required" class="form-control" maxlength="3"/>
+								</div>
+								<button id="btnUpdatePuntos" type="submit" class="btn btn-success">Actualizar Puntos</button>
+							</form>
+						</div>
+					</div>
+				</div>
+		</div>
+	</div>
+	
+	<style>
+		.nombre{
+			width: 20%;
+			min-width: 150px;
+		}
+		
+		.edad, .puntos , .copy_clip{
+			width: 5%;
+			min-width: 40px;
+		}
+		
+		.genero{
+			min-width: 50px;
+			width: 10%;
+		}
+		
+		.table-responsive{
+			max-height: 500px;
+			overflow-y: auto;
+		}
+		
+		.fecha{
+			width: 4%;
+			min-width: 90px;
+		}
+	</style>
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="panel panel-default">
+				<div class="panel-heading"><span class="glyphicon glyphicon-user"></span> Usuarios Actuales </div>
+				<div class="panel-body">
+					<div class="table-responsive">
+						<table class="table table-bordered table-hover" id="tableUsuarios">
+							<thead>
+								<tr>
+						          <th>Nombre</th>
+						          <th>Edad</th>
+						          <th>Genero</th>
+						          <th>Puntos</th>
+						          <th>Fecha Ingreso</th>
+						        </tr>
+							</thead>
+							<tbody class="tbody">
+							</tbody>
+						</table>
+					</div>		
+				</div><!-- end panel body -->
+			</div><!-- end panel -->
+		</div>
+	</div><!--/.row-->
+</div>	<!--/.main-->
+

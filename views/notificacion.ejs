@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>Dinamita | Notificación</title>
+	<meta charset="utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+   	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+   	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico"/>
+   	<%- include('admin/partials/head'); %>
+</head>
+<body>
+	<div class="row">
+		<div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4">
+			<%if(sf == true){%>
+				<div class="panel panel-success">
+					<div class="panel-heading">
+						<%=titleMsg%> <span class="glyphicon glyphicon-ok-sign"></span>
+					</div>
+					<div class="panel-body">
+						<p><%=contentMsg%></p>
+						<a class="btn btn-warning" href="<%=returnPage%>" role="button">
+							<span class="glyphicon glyphicon-circle-arrow-left"></span> Regresar
+						</a>
+					</div>
+				</div>			
+			<%}%>
+		</div></div></body>
+</html>

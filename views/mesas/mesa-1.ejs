@@ -1,0 +1,87 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+    <title>METACON | Mesa-1</title>
+    <%- include('partials/head') %>    
+</head>
+<body class="mesas">    
+    <div class="container">
+        <%- include('./partials/header') %>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-3">
+                <div class="lateral-izq">
+                    <img src="../img/mesas/back_usuario.png" alt="Usuario" class="img-responsive center-element">
+                    <div class="front-usuario">
+                        <ul>
+                            <li>
+                                <label id="name-jugador"></label> 
+                            </li>
+                            <li>
+                                <span id="puntos-usuario"></span>
+                            </li>
+                            <li>
+                                <div id="total-capturas">
+                                    Capturas <span></span>
+                                </div>                    
+                            </li>
+                            <li>
+                                Mesa-1
+                            </li>
+                            <li>
+                                <span id="total-puntos"></span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-lateral m-top-1em">
+                        <ul>
+                            <%- include('./partials/buttons_lateral_izq') %>
+                            <li>
+                                <div class="center-element text-center">
+                                    <div class="cronometro visible-xs-inline-block"></div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xs-12 col-sm-8 col-md-7">
+                <div id="content-tablero" class="col-md-12">
+                    <div id="tablero"></div>
+                </div>
+                
+                <div class="clearfix"></div>
+                
+                <div class="col-md-12">
+                    <section id="chat">
+                        <%- include('./partials/chat') %>
+                    </section>
+                </div>
+            </div>
+            
+            <div class="col-xs-12 col-sm-4 col-md-2 no-padding">
+                <%- include('./partials/section_lateral_der') %>
+            </div>
+        </div>
+    </div>
+    
+    <%- include('../partials/footer') %>
+    
+    <%- include('./partials/modal_ganador') %>
+    
+    <%- include('./partials/resource_js') %>
+    
+    <script type="text/javascript">
+        $(document).on('ready', function() {
+            init('mesa-1');
+            listen();
+        });
+        
+        $(window).resize(function() {
+            resizeCasillas();
+        });
+    </script>
+</body>
+</html>

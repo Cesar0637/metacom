@@ -1,0 +1,60 @@
+<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			 
+	
+	<div class="row">
+		<ol class="breadcrumb">
+			<li><a href="#"><span class="glyphicon glyphicon-home"></span></a></li>
+			<li class="active">Mesas</li>
+		</ol>
+	</div><!--/.row-->
+	
+	<div class="row">
+		<div class="col-lg-12">
+			<h1 class="page-header">Administracion de Mesas</h1>
+		</div>
+	</div><!--/.row-->
+	
+	<%- include('blockOptions'); %>
+	
+	<style>
+		.table-responsive{
+			max-height: 500px;
+			overflow-y: auto;
+		}
+	</style>
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<%if(promedio != null){%>
+						<span class="fa fa-area-chart"></span> Promedio de usuarios por mesa : <%=promedio%>
+					<%}else{%>
+						<span class="fa fa-frown-o"></span> ¡Oops!, lo sentimos pero no se ha podido calcular el promedio.
+					<%}%> 
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="panel panel-default">
+				<div class="panel-heading"><span class="glyphicon glyphicon-user"></span> Combinación de Epocas en Mesas </div>
+				<div class="panel-body">
+					<div class="table-responsive">
+						<table class="table table-bordered table-hover" id="tableMesas">
+							<thead>
+								<tr>
+						          <th>No. Mesa</th>
+						          <th>Feudalismo</th>
+						          <th>Capitalismo</th>
+						          <th>Neoliberalismo</th>
+						          <th>Total de Partidas</th>
+						        </tr>
+							</thead>
+							<tbody class="tbody">
+							</tbody>
+						</table>
+					</div>		
+				</div><!-- end panel body -->
+			</div><!-- end panel -->
+		</div><!-- end col -->
+	</div><!--/.row-->
+</div>	<!--/.main-->
+

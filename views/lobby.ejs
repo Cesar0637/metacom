@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>METACON | Lobby</title>
+	<meta charset="utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+   	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+   	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico">
+   	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/estilos.css">
+	<link rel="stylesheet" type="text/css" href="../css/plugins/honeycombs/honeycombs.css" />
+	<link rel="stylesheet" type="text/css" href="../css/plugins/flexslider/flexslider.css" />
+	<link rel="stylesheet" href="../css/plugins/jquery-growl/jquery.growl.css"/>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"/>
+	<link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+</head>
+<body class="lobby">
+	<div id="preloader">
+	    <div id="status-preloader">&nbsp;</div>
+	</div>
+
+	<div class="container">
+		<div class="row">			
+			<div class="col-md-4 lateral-izq">
+				<div class="row m-top-3em">
+					<div class="marco-usuario center-element textos-generales">
+						<span id="nick"><%=nick%></span>
+						<br />
+						<span id="creditos">$<%=creditos%></span>
+						<br />
+					</div>
+				</div>
+				<div class="row">
+					<audio autoplay  loop controls class="audio">
+						<source src="music/lobby_metacon.mp3" type="audio/mpeg">
+						<source src="music/lobby_metacon.ogg" type="audio/ogg">
+						Tu navegador no soporta elementos audio
+					</audio>
+				</div>
+				<div class="row">
+					<div style="width: 70%; margin: 0 auto;">
+						<img src="img/lobby/pleca_divmenu.png" alt="Margen" class="pleca img-responsive">
+					</div>
+				</div>
+				<div class="row">					
+					<form class="form-chat">
+						<div class="panel panel-default">
+				               <div class="panel-heading bg-white" id="accordion">
+				                   <h4>
+				                   		<span class="glyphicon glyphicon-comment"></span> Chat
+				                   		<div class="btn-group pull-right">
+					                       <a type="button" class="btn btn-default btn-xs" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" style="background-color: #e5e5e5;">
+					                           <span class="glyphicon glyphicon-chevron-down"></span>
+					                       </a>
+					                   </div>
+				                   </h4>
+				               </div>
+				               <style>
+				                .chat{ padding: 0px; }
+								ul.chat li { font-size: 12px; display: block; }
+								#content-chat{ height: 130px; max-height: 130px; overflow-y: auto; }
+				               </style>
+				            <div class="panel-collapse collapse" id="collapseOne">
+				                <div id="content-chat" class="panel-body">
+				                    <ul class="chat">
+				                    	<h3>Aun no hay mensajes</h3>
+				                    </ul>
+				                </div>
+				                <div class="panel-footer">
+				                    <div class="input-group">
+				                        <input id="input-msg" type="text" class="form-control input-sm" placeholder="Escribe tu mensaje aquí..." maxlength="100" />
+				                        <span class="input-group-btn">
+				                            <button class="btn btn-warning btn-sm" id="btn-chat">Enviar</button>
+				                        </span>
+				                    </div>
+				                </div>
+				            </div>
+						</div>
+					</form>
+				</div>
+				<div class="row">
+					<div style="width: 85%; margin: 0 auto;">
+						<img src="img/lobby/img_izqinf.png" alt="Metacon" class="img-responsive" style="margin: 1em auto 3em auto;">
+					</div>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<div class="row">
+					<header id="header" class="text-center">
+						<img src="img/lobby/t_lobby.png" alt="Lobby" class="img-responsive">
+					</header>
+				</div>
+				<div class="row">
+					<div class="options">
+						<ul class="list-group text-center">
+						  <li class="list-group-item">
+						  	<img src="img/lobby/btn_conectados.png" alt="Conectados">
+						  	<span id="noUsuariosConectados"></span>
+						  </li>
+						  <li class="list-group-item">
+						  	<a href="/reglas">
+						  		<img src="img/lobby/reglas.png" alt="Reglas">
+						  	</a>
+						  </li>
+						  <li class="list-group-item">
+						  	<a href="#" data-toggle="modal" data-target="#modalContactar">
+						  		<img src="img/lobby/contactar.png" alt="Contactar">
+						  	</a>
+						  </li>
+						  <li class="list-group-item">
+						  		<a href="#" onclick="showSocials();">
+						  			<img src="img/lobby/ganar_mas_puntos.png" alt="Ganar más Puntos"> 
+						  		</a>
+						  		<br />
+						  		<span id="social" style="display: none; margin-top: 5px;">
+							  		<button type="button" id="btnFB" class="btn btn-primary fb">
+										<i class="fa fa-facebook"></i>
+									</button>
+									<a href="https://twitter.com/intent/tweet?url=http://metacon.net/&text=JUEGA METACON Y DESPIERTA%20%7C%20" 
+									id="btnTwitter" class="btn btn-info" class="twitter">
+										<i class="fa fa-twitter"></i>
+									</a>
+									<button id="btnGoogle" class="btn btn-danger" class="google-plus">
+										<i class="fa fa-google-plus"></i>
+									</button>
+						  		</span>
+						  </li>
+						  <li>
+							  	<a onclick="showElements('#resultados');" href="#">
+									<img src="img/salir/enviar_resultados.png" alt="Enviar Resultados">
+								</a>
+								<div id="resultados" class="row" style="display: none;">
+									<div class="col-md-12">
+										<form id="formSend" role="form">
+											<div class="form-group">
+											    <label class="sr-only" for="txtEmail">Email address</label>
+											    <input type="email" class="form-control" id="txtEmail" name="txtEmail" placeholder="Ingresa un email" required="required"/>
+											</div>
+											<button id="btnSend" type="submit" class="btn btn-warning">Enviar</button>
+										</form>
+									</div>
+								</div>
+						  </li>
+						  <li class="list-group-item">
+						  	<a href="/salir" class="text-danger">
+								<img src="img/lobby/salir.png" alt="">
+							</a>
+						  </li>
+						</ul>
+					</div>
+				</div>
+				<div class="row text-center">
+					<div style="width: 85%; margin:0 auto;">
+						<img src="img/lobby/selecciona_mesa.png" alt="Seleccione una mesa" class="img-responsive center-element">
+					</div>
+				</div>
+				<div class="row m-top-1em">
+					<div class="col-md-12 honeycombs">
+						<%for (var i=0; i < mesas; i++) {%>
+							<div class="comb" id="p-<%=(i+1);%>">
+								<div class="front-content">
+									<h3 id="title-mesa-<%=(i+1);%>">MESA <%=(i+1);%></h3>
+								</div>
+								<div class="back-content">
+									<div id="contentData-mesa-<%=(i+1)%>" class="contentForm"></div>
+								</div> 
+					  		</div>
+						<%}%>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container inferior">
+		<div class="row">
+			<div style="width: 90%; margin: 2em auto;">
+				<div class="col-md-6">
+					<div style="margin: 1em auto; width:90%;">
+						<img src="img/lobby/cinco_pochtecas.png" alt="Cinco Pochtecas" class="img-responsive">
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="carousel-back">
+						<div class="flexslider" id="slider-patrocinadores">
+							<ul class="slides"></ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="modalContactar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+	    <div class="modal-content textos-generales">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <img src="http://res.cloudinary.com/tr-network/image/upload/v1433793167/contactar_qvwbu2.png" alt="Contactar" class="pull-left" />
+	        <h4 class="modal-title f-size25" id="titleContactar">Contactar</h4>
+	        <div class="clearfix"></div>
+	      </div>
+	      <div class="modal-body">
+	        <form id="formContacto" role="form">
+        	  <div class="form-group">
+			    <label for="txtMail">E-mail</label>
+			    <input type="mail" class="form-control" id="txtMail" name="txtMail" placeholder="Ingrese un E-mail" required="required"/>
+			  </div>
+			  <div class="form-group">
+			    <label for="txtMsg">Mensaje</label>
+			    <br />
+			    <textarea id="txtMsg" name="txtMsg" class="form-control" rows="3" maxlength="150" placeholder="Ej. Ingrese un mensaje" required="required"></textarea>
+			  </div>
+			  <div class="checkbox">
+			    <label>
+			      <input id="info_patrocinador" name="info_patrocinador" type="checkbox" value="recibir_informacion"> DESEO RECIBIR INFORMACIÓN SOBRE CÓMO SER UN PATROCINADOR DEL DESARROLLO COGNITIVO NACIONAL.
+			    </label>
+			  </div>
+			  <div class="form-group">
+			  	<label>Seleccione el campo</label>
+			  	<div class="g-recaptcha" data-sitekey="6Lc34AcTAAAAAI3f9Lxi1-FqaHSot1ssakdys9lH"></div>
+			  </div>
+			  <button id="btnContactar" type="submit" class="btn btn-warning">Enviar</button>
+			  <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+	        </form>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<section id="footerSection">
+		<%- include('partials/footer'); %>
+	</section>
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+   	<script defer src="js/plugins/flexslider/jquery.flexslider-min.js"></script>
+   	<script src="js/plugins/honeycombs/jquery.honeycombs.js"></script>
+   	<script defer src="js/lobby/lobby.js"></script> 
+  	<script src="../js/plugins/jquery-growl/jquery.growl.js"></script>
+   	<script src="/socket.io/socket.io.js"></script>
+	<script src="js/modal.js"></script>
+	<script src="js/social/api.min.js"></script>
+	<script>
+		//conexion con el server
+		var socket = io.connect(window.location.host+'/lobby');
+		var urlShare = encodeURI("http://metacon.net/");		
+
+		//chat
+		var e_chat = $('.chat');			
+		var e_content_chat = $('#content-chat');
+		var e_btn_send_msg = $('#btn-chat');
+		var e_input_msg = $('#input-msg');
+		//una vez que la pagina este cargada
+		$(document).on('ready', function(){						
+			//Link share
+			getPatrocinadores();
+			$('.honeycombs').honeycombs({
+				combWidth: 305,
+				margin: -20,
+				threshold: 4
+			});
+			//La socket le enviara un mensaje al servidor
+			// Se invoca la funcion init
+			init();
+		});
+		$(window).load(function(){
+			$('#status-preloader').fadeOut(); // will first fade out the loading animation
+            $('#preloader').delay(350).fadeOut('slow'); // will fade out the white DIV that covers the website.
+            $('body').delay(350).css({'overflow':'visible'});
+
+			$('#slider-patrocinadores').flexslider({
+			    animation: "slide",
+			    controlNav: false
+			});
+	    });
+		function showSocials(){
+			$('#social').show('slow');
+		}
+
+		e_btn_send_msg.click(function(e){			
+			e.preventDefault();
+			var msg = e_input_msg.val();
+			if(msg != ''){
+				var nick = $('#nick').text();
+				socket.emit('sendMessage', {nick : nick, msg : msg});
+				e_input_msg.val('')
+			}else{
+				var data =  { 'title' : '¡Oops!, lo sentimos' , 'msg' : 'El campo de mensaje es requerido', 'tipo' : 'danger'};
+				procesaNotificacion(data);
+			}
+		});
+		function showElements(element){
+			$(element).show(1000);
+	  	}
+
+	  	$('#formSend').submit(function(event){
+			event.preventDefault();
+			$('#btnSend').prop('disabled', true);
+			$('#formSend #msgError').remove();
+			var email = $('#txtEmail').val();
+			if(email != '' && email.length != 0 && email != null){
+				$.ajax({
+			        data:  {email : email},
+			        // hacemos referencia al archivo contacto.php
+			        url:   '/send',
+			        type:  'post',
+			        success: function(response) {
+			        	$('#btnSend').after('<p class="text-success" id="msgError">'+response.response+'</p>');
+			       	},
+			       	error: 
+			       	function(error){
+			       		$('#btnSend').prop('disabled', true);
+			       		$('#btnSend').after('<p class="text-danger" id="msgError">¡Oops!, surgio un problema inesperado intentelo más tarde.</p>');
+			       	}
+			   });				
+			}else{
+				$('#btnSend').prop('disabled', false);
+				$('#btnSend').after('<p class="text-danger" id="msgError">* Ingrese un email valido</p>');
+			}
+		});
+	</script>
+
+</body>
+</html>

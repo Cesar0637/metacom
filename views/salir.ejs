@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>Dinamita | Salir</title>
+	<meta charset="utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+   	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+   	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico"/>
+   	
+   	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/estilos.css">
+	
+	<link rel="stylesheet" href="../css/plugins/jquery-growl/jquery.growl.css"/>
+   	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"/>
+   	<link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    </head>
+<body class="salida">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6 no-padding hidden-xs">
+				<div style="position: relative;">
+					<img src="img/salir/back_iz_s.png" alt="Fondo" class="img-responsive">
+					<div class="lado-izq">
+						<img src="img/salir/img_iz_s.png" alt="Salir" class="img-responsive">
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6 no-padding lado-der">
+				<div style="position: relative">
+					<img src="img/salir/back_de_s.png" alt="Fondo" class="img-responsive">
+					<div class="contenido">
+						<img src="img/salir/t_adios.png" alt="" style="width: 80%;">	
+
+						<div>
+							<ul>
+								<li>
+									<a onclick="showElements('#options');" href="#">
+										<img src="img/salir/recomienda.png" alt="Recomienda">
+									</a>
+									<div id="options" class="row" style="display: none;">
+										<div class="col-md-12" id="social">
+											<button type="button" id="btnFB" class="btn btn-primary fb">
+												<i class="fa fa-facebook"></i>
+											</button>
+											<a href="https://twitter.com/intent/tweet?url=http://metacon.net/&text=JUEGA METACON Y DESPIERTA%20%7C%20" 
+											id="btnTwitter" class="btn btn-info" class="twitter">
+												<i class="fa fa-twitter"></i>
+											</a>
+											<button id="btnGoogle" class="btn btn-danger" class="google-plus">
+												<i class="fa fa-google-plus"></i>
+											</button>
+										</div>
+									</div>
+									<img src="img/salir/pleca.png" alt="Separador">
+								</li>
+								<li>
+									<a onclick="showElements('#resultados');" href="#">
+										<img src="img/salir/enviar_resultados.png" alt="Enviar Resultados">
+									</a>
+									<div id="resultados" class="row" style="display: none;">
+										<div class="col-md-12">
+											<form id="formSend" role="form">
+												<div class="form-group">
+												    <label class="sr-only" for="txtEmail">Email address</label>
+												    <input type="email" class="form-control" id="txtEmail" name="txtEmail" placeholder="Ingresa un email" required="required"/>
+												</div>
+												<button id="btnSend" type="submit" class="btn btn-warning">Enviar</button>
+											</form>
+										</div>
+									</div>
+									<img src="img/salir/pleca.png" alt="Separador">
+								</li>
+								<li>
+									<a onclick="conocePatrocinador();">
+										<img src="img/salir/conoce_patrocinador.png" alt="Conoce un patrocinador">
+									</a>
+									<img src="img/salir/pleca.png" alt="Separador">
+								</li>
+								<li>
+									<a href="/lobby">										
+										<img src="img/salir/regresar.png" alt="Regresar">
+									</a>
+								</li>
+							</ul>	
+						</div>
+						<div style="position: relative">
+							<img src="img/salir/marco_salir.png" alt="">
+							<div style="position: absolute; top: 20%; width: 100%;">
+								<form role="form">
+									<div style="">
+										<button id="btnSalir" type="button" onclick="logout();">
+											<i class="glyphicon glyphicon-new-window"></i> Salir 
+											<br /> y
+											<br /> perder puntos
+										</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<section id="footerSection">
+		<%- include('partials/footer'); %>
+	</section>
+
+	<div class="modal fade" id="modalPatrocinador" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-sm">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="titlePatrocinador"></h4>
+	      </div>
+	      <div class="modal-body">
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="../js/modal.js"></script>
+	<script src="../js/plugins/jquery-growl/jquery.growl.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+	 var socket = io.connect(window.location.host+'/salir');
+	 function logout(){
+	  	socket.emit('logout');
+	 }
+	  
+	  $(document).ready(function(){
+		  socket.on('redirectToIndex', procesaRedirect);
+		  //notificaciones
+		  socket.on('notificacion', procesaNotificacion);
+	  });
+	  //Show growls notifications
+	  function procesaNotificacion(data) {
+		if(data.tipo == 'info'){
+			$.growl.notice({ title: data.title, message: data.msg });
+		}else if(data.tipo == 'danger'){
+			$.growl.error({ title: data.title, message: data.msg });	
+		}else{
+			$.growl.warning({ title: data.title, message: data.msg });
+		}
+	 }
+	  
+		//funcion que procesa un redireccionamiento proveniente del server
+	  function procesaRedirect(page){
+	  	window.location.replace(page);
+	  }
+	
+	  var urlShare = encodeURI("http://metacon.net/");
+	  function showElements(element){
+			$(element).show(1000);
+	  }
+	  $('#formSend').submit(function(event){
+			event.preventDefault();
+			$('#btnSend').prop('disabled', true);
+			$('#formSend #msgError').remove();
+			var email = $('#txtEmail').val();
+			if(email != '' && email.length != 0 && email != null){
+				$.ajax({
+			        data:  {email : email},
+			        // hacemos referencia al archivo contacto.php
+			        url:   '/send',
+			        type:  'post',
+			        success: function(response) {
+			        	$('#btnSend').after('<p class="text-success" id="msgError">'+response.response+'</p>');
+			       	},
+			       	error: function(error){
+			       		$('#btnSend').prop('disabled', true);
+			       		$('#btnSend').after('<p class="text-danger" id="msgError">¡Oops!, surgio un problema inesperado intentelo más tarde.</p>');
+			       	}
+			   });				
+			}else{
+				$('#btnSend').prop('disabled', false);
+				$('#btnSend').after('<p class="text-danger" id="msgError">* Ingrese un email valido</p>');
+			}
+		});
+	  function conocePatrocinador(){
+		  $.ajax({
+		        // hacemos referencia al archivo contacto.php
+		        url:   '/view_patrocinador',
+		        type:  'post',
+		        success: function(response) {
+		        	if(!response.denegado){
+		        		if(response.err){
+			        		$.growl.error({ title: '¡Oops!', message: 'Surgio un problema inesperado' });
+			        		console.log(response.patrocinador.desc);
+			        	}else{
+			        		$('#titlePatrocinador').html(response.patrocinador.desc[0].nombre);
+			        		$('#modalPatrocinador .modal-body').html('<img src="'+response.patrocinador.desc[0].ficha+'" alt="'+response.patrocinador.desc[0].nombre+'" class="m10-auto img-responsive"/>');
+			        		openModal('#modalPatrocinador');
+			        		$.growl.notice({ title: '¡Felicidades!', message: 'Ahora cuentas con 10pts más'});
+			        	}		        		
+		        	}else{
+		        		window.location.replace('/');
+		        	}
+		       	},
+		       	error: function(error){
+		       		console.log(error);
+		       	}
+		   });	
+	  }
+	</script>
+	
+	<script src="js/social/api.min.js"></script>
+
+</body>
+</html>

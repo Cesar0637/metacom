@@ -1,0 +1,75 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>METACON - Panel Admin</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+	<% include partials/head%>
+</head>
+<body>
+
+	<!-- nav -->
+	<% include partials/nav%>
+	<!-- end nav -->
+		
+	<!-- sidebar -->
+	<% include partials/sidebar%>
+	<!-- end sidebar -->
+		
+		
+	<!-- main content -->
+	<%- include(view); %>
+	<!-- end main content -->
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="../js/bootstrap.min.js"></script>
+	<script src="../js/bootstrap-datepicker.js"></script>
+	<script src="../js/plugins/jquery-growl/jquery.growl.js"></script>
+	<script>
+		!function ($) {
+		    $(document).on("click","ul.nav li.parent > a > span.icon", function(){          
+		        $(this).find('em:first').toggleClass("glyphicon-minus");      
+		    }); 
+		    $(".sidebar span.icon").find('em:first').addClass("glyphicon-plus");
+		}(window.jQuery);
+
+		$(window).on('resize', function () {
+		  if ($(window).width() > 768) $('#sidebar-collapse').collapse('show')
+		})
+		$(window).on('resize', function () {
+		  if ($(window).width() <= 767) $('#sidebar-collapse').collapse('hide')
+		})
+	</script>
+	<% if (view == 'partials/marcas'){ %>
+		<script src="../js/panel/patrocinadores.js"></script>
+		<script src="../js/vf.js"></script>
+		<script>
+		$(document).ready(function() {
+			$('#ficha').change(function() {
+				//1MB
+				chekValidateFile('#ficha', 1048576);
+			});
+			//obtiene la lista de patrocinadores actuales
+			getPatrocinadores();
+		});
+		</script>
+	<% } else if(view == 'partials/usuarios'){ %>
+	<script src="../js/panel/usuarios.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			//obtiene la lista de usuarios actuales
+			getUsuarios();
+		});
+	</script>
+	<% }else if (view == 'partials/mesas'){ %>
+		<script src="../js/panel/mesas.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				//obtiene la lista de usuarios actuales
+				getMesas();
+			});
+		</script>
+	<% } %>	
+</body>
+</html>
