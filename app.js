@@ -50,11 +50,12 @@ app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+// --- Favicon y logs de acceso ---
 app.use(favicon(path.join(__dirname, '/public/images/favicon.ico')));
 const accessLogStream = fs.createWriteStream(path.join(__dirname, '/logs/access.log'), { flags: 'a' });
 app.use(morgan('dev', { stream: accessLogStream }));
 app.use(methodOverride());
-app.use(cookieParser());
+app.use(cookieParser());  // ✅ CRÍTICO: Debe ir ANTES de session
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(nocache());
@@ -81,6 +82,9 @@ app.use(routesLogin);
 app.use(routesPanel);
 app.use(routesSalir);
 
+// ==============================
+// Manejo de errores
+// ==============================
 app.use(pmx.expressErrorHandler());
 if (app.get('env') === 'development') app.use(errorHandler());
 
