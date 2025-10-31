@@ -828,88 +828,77 @@ module.exports =  function (io, mesas, listPatrocinadoresDefault, statusMesas) {
 		});//fin evento process_move
 		
 		
-	// Petición para reiniciar el juego
-socket.on('reiniciarJuego', function(data) {
-    const mesa = mesas[data.mesa];
-
-    // Validar que la mesa existe y no esté iniciada
-    if (!mesa || mesa._startGame) {
-        return socket.emit('notificacion', {
-            title: '¡Oops!',
-            msg: 'La mesa está activa y no puede ser reiniciada',
-            tipo: 'warning'
-        });
-    }
-
-    const session = socket.request.session;
-
-    // Validar que el usuario tenga sesión
-    if (!session.jugador) {
-        return socket.emit('redirect', '/');
-    }
-
-    // Solo el creador de la mesa puede reiniciar
-    const creador = mesa._listaJugadores[0];
-    if (creador._nick !== session.jugador._nick) {
-        return socket.emit('notificacion', {
-            title: '¡Oops!',
-            msg: 'No tienes permitido realizar esta acción',
-            tipo: 'danger'
-        });
-    }
-
-    // Reinicio de variables base
-    clearInterval(intervalos[mesa._noMesa]);
-    Object.assign(mesa, {
-        _epoca: data.epoca,
-        _puntosAcumulados: 0,
-        _tiempoTirada: data.tiempoTirada,
-        _tablero: util.inicializarTablero(mesa._tablero),
-        _turnoEnMesa: 0,
-        _bloqueoPorReinicio: false
-    });
-
-    // Actualiza capturas y turnos
-    sala.to(mesa._noMesa).emit('updateCapturaTurnos');
-
-    // Obtener nuevos patrocinadores
-    patrocinadorController.patrocinadores.getPatrocinadoresPago(function(r) {
-        if (r.err) {
-            return logger.error(`${nameModuleLogger}socket:reiniciarJuego Err: ${r.desc}`);
-        }
-
-        // Fallback: si r.desc está vacío, usar patrocinadores por defecto
-        mesa._listaPatrocinadores = util.obtenerPatrocinadores(
-            listPatrocinadoresDefault,
-            r.desc.length ? r.desc : listPatrocinadoresDefault
-        );
-
-        // Asignar ficha principal si existe
-        mesa._ficha = mesa._listaPatrocinadores.length > 0 ? mesa._listaPatrocinadores[0]._nombre : null;
-
-        // Lógica especial para mesa-10
-        if (mesa._noMesa === 'mesa-10') {
-            mesa._listaJugadores.forEach(j => {
-                delete j._patrocinadores;
-                j._activo = false;
-            });
-            mesa._noJugadoresActivos = 0;
-
-            // Emitir evento para seleccionar fichas
-            sala.to(mesa._noMesa).emit('selectFicha', mesa._listaPatrocinadores);
-        } else {
-            sala.to(mesa._noMesa).emit('updateFichasUsers', mesa._noMesa);
-        }
-
-        // Actualizar objeto mesa y emitir eventos a todos los clientes
-        mesas[mesa._noMesa] = mesa;
-        sala.to(mesa._noMesa).emit('closeModalReset');
-        sala.to(mesa._noMesa).emit('cargaConfiguracion', mesa);
-        io.of('/lobby').emit('sendUsersMesas', mesas);
-    });
-});
- 
- 
+		// peticion para reiniciar el juego
+		socket.on('reiniciarJuego', function(data) {
+			//Se obtiene la mesa
+			mesa = mesas[data.mesa];
+			//Si la mesa no esta iniciada se puede reiniciar
+			if(!mesa._startGame){
+				//Se inicializa la variable con la session del socket request
+				var session = socket.request.session;
+				//Se valida si el ususario esta en session
+				if(session.jugador){
+					if(mesa._listaJugadores[0]._nick == session.jugador._nick){
+						//Se detiene el cronometro de reinicio de partida
+						clearInterval(intervalos[mesa._noMesa]);
+						mesa._epoca = data.epoca;
+						mesa._puntosAcumulados = 0;
+						mesa._tiempoTirada = data.tiempoTirada;
+						mesa._tablero = util.inicializarTablero(mesa._tablero);
+						mesa._turnoEnMesa = 0;
+						mesa._bloqueoPorReinicio = false;
+						
+						//Se emite un evento para reiniciar las capturas de todos los jugadores en session
+						//Se reinician los turnos perdidos de todos los jugadores al reiniciar el juego
+						sala.to(mesa._noMesa).emit('updateCapturaTurnos');
+						
+						//Se obtienen nuevos patrocinadores de pago
+						patrocinadorController.patrocinadores.getPatrocinadoresPago(function(r) {
+							if(!r.err){
+								mesa._listaPatrocinadores = util.obtenerPatrocinadores(listPatrocinadoresDefault, r.desc);
+								//mesa._ficha = mesa._listaPatrocinadores[0]._nombre;
+								
+								//Se analiza si es la mesa 10
+								if(mesa._noMesa == 'mesa-10'){
+									//Se pasan todos los jugadores como observadores
+									var auxJugadoresActivos = mesa._noJugadoresActivos;
+									for(var i = 0; i < mesa._noJugadoresActivos; i++){
+										delete mesa._listaJugadores[i]._patrocinadores;
+										mesa._listaJugadores[i]._activo = false;
+										auxJugadoresActivos--;
+									}
+									mesa._noJugadoresActivos = auxJugadoresActivos;
+									listaAuxiliarPatrocinadores = mesa._listaPatrocinadores;
+									sala.to(mesa._noMesa).emit('selectFicha', listaAuxiliarPatrocinadores);
+								}else{
+									//Se actualizan las fichas del usuario en su session
+									sala.to(mesa._noMesa).emit('updateFichasUsers', mesa._noMesa);	
+								}
+								
+								
+								//Se actualiza el valor de las mesas (json) con el nuevo objeto
+								mesas[data.mesa] = mesa;
+								//Se reinicia el juego y se emiten a todos los clientes las nuevas configuraciones
+								sala.to(mesa._noMesa).emit('closeModalReset');
+								sala.to(mesa._noMesa).emit('cargaConfiguracion', mesa);
+								io.of('/lobby').emit('sendUsersMesas', mesas);
+							}else{
+								logger.error(nameModuleLogger + 'socket:reiniciarJuego Err: ' + r.desc);
+							}
+						});
+						
+					}else{
+						socket.emit('notificacion', {'title' : '¡Oops!', 'msg' : 'No tienes permitido realizar esta acción', 'tipo' : 'danger'});
+					}
+				}else{
+					socket.emit('redirect', '/');
+				}
+			}else{
+				socket.emit('notificacion', {'title' : '¡Oops!', 'msg' : 'La mesa esta activa y no puede ser reiniciada', 'tipo' : 'warning'});
+			}
+		});//fin reiniciar
+		
+		
 		socket.on('updateSessJugador', function(data){
 			// Se inicializa la variable session y se obtiene el request
 			var session = socket.request.session;

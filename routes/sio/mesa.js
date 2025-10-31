@@ -44,28 +44,22 @@ function cronometroReinicioJuego(io, sala, mesa, mesas, nick, listPatrocinadores
 				if(mesa._noJugadoresActivos > 0){
 					mesa._ficha = mesa._listaJugadores[0]._patrocinador.nombre;
 				}
+				
+				//Se obtienen nuevos patrocinadores de pago
 				patrocinadorController.patrocinadores.getPatrocinadoresPago(function(r) {
-    if (!r.err) {
-        // fallback: si r.desc está vacío, usar patrocinadores por defecto
-        mesa._listaPatrocinadores = util.obtenerPatrocinadores(
-            listPatrocinadoresDefault,
-            r.desc.length ? r.desc : listPatrocinadoresDefault
-        );
-
-        // asignar ficha principal solo si existe
-        mesa._ficha = mesa._listaPatrocinadores.length > 0 ? mesa._listaPatrocinadores[0]._nombre : null;
-
-        // actualizar objeto mesa
-        mesas[mesa._noMesa] = mesa;
-
-        // notificaciones a los clientes
-        sala.to(mesa._noMesa).emit('updateFichasUsers', mesa._noMesa);
-        sala.to(mesa._noMesa).emit('closeModalReset');
-        sala.to(mesa._noMesa).emit('cargaConfiguracion', mesa);
-        io.of('/lobby').emit('sendUsersMesas', mesas);
-    }
-});
-
+					if(!r.err){
+						mesa._listaPatrocinadores = util.obtenerPatrocinadores(listPatrocinadoresDefault, r.desc);
+						mesa._ficha = mesa._listaPatrocinadores[0]._nombre;
+						//Se actualiza el valor de las mesas (json) con el nuevo objeto
+						mesas[mesa._noMesa] = mesa;
+						//Se actualizan las fichas del usuario en su session
+						sala.to(mesa._noMesa).emit('updateFichasUsers', mesa._noMesa);
+						//Se reinicia el juego y se emiten a todos los clientes las nuevas configuraciones
+						sala.to(mesa._noMesa).emit('closeModalReset');
+						sala.to(mesa._noMesa).emit('cargaConfiguracion', mesa);
+						io.of('/lobby').emit('sendUsersMesas', mesas);
+					}
+				});
 			}
 		}
 	}, 1000);
