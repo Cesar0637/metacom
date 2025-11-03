@@ -63,23 +63,48 @@ module.exports = {
         },
 
 
-        // --- CORREGIDO CON ASYNC/AWAIT ---
-        // findRandom no es una función estándar de Mongoose. La forma moderna es usar Agregación.
-        getPatrocinadoresPago: async function () {
-            try {
-                const filter = { isDefault: false, visualizacionActual: { $gt: 0 } };
-                // Usamos $sample para obtener documentos aleatorios
-                const result = await models.Patrocinador.aggregate([
-                    { $match: filter },
-                    { $sample: { size: 6 } }
-                ]);
-                console.log( "Patrocinadores de pago:"   ,JSON.stringify(result));
-
-                return { err: false, desc: result };
-            } catch (err) {
-                return { err: true, desc: 'Error al obtener patrocinadores de pago: ' + err };
-            }
-        },
+getPatrocinadoresPago: async function () {
+    try {
+        console.log("🔄🔄🔄 EJECUTANDO VERSIÓN ROBUSTA DE getPatrocinadoresPago 🔄🔄🔄");
+        
+        // PRIMERO: Buscar patrocinadores NO default con vistas > 0
+        let result = await models.Patrocinador.aggregate([
+            { $match: { isDefault: false, visualizacionActual: { $gt: 0 } } },
+            { $sample: { size: 6 } }
+        ]);
+        
+        console.log("🔍 Fase 1 - Con vistas > 0:", result.length, "resultados");
+        
+        // SEGUNDO: Si no hay, buscar cualquier patrocinador NO default
+        if (result.length === 0) {
+            console.log("🔍 Fase 2 - Buscando cualquier patrocinador no-default...");
+            result = await models.Patrocinador.aggregate([
+                { $match: { isDefault: false } },
+                { $sample: { size: 6 } }
+            ]);
+            console.log("🔍 Fase 2 - Resultados:", result.length);
+        }
+        
+        // TERCERO: Si todavía no hay, usar algunos defaults mezclados
+        if (result.length === 0) {
+            console.log("🔍 Fase 3 - Usando patrocinadores por defecto...");
+            result = await models.Patrocinador.aggregate([
+                { $match: { isDefault: true } },
+                { $sample: { size: 6 } }
+            ]);
+            console.log("🔍 Fase 3 - Resultados:", result.length);
+        }
+        
+        console.log("✅✅✅ RESULTADO FINAL - Patrocinadores encontrados:", result.length, "✅✅✅");
+        console.log("📊 Datos:", JSON.stringify(result));
+        
+        return { err: false, desc: result };
+        
+    } catch (err) {
+        console.error("❌❌❌ ERROR CRÍTICO:", err);
+        return { err: false, desc: [] };
+    }
+},
 
 
         // --- CORREGIDO CON ASYNC/AWAIT ---

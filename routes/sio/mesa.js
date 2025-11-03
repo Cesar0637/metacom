@@ -15,57 +15,71 @@ var intervalos = {
 		'mesa-9' : null,
 		'mesa-10' : null,
 	};
-
 var listaAuxiliarPatrocinadores = new Array();
 
-
 function cronometroReinicioJuego(io, sala, mesa, mesas, nick, listPatrocinadoresDefault){
-	var tiempoInicial = 30;
-	intervalos[mesa._noMesa] = setInterval(function() {
-		if(tiempoInicial >= 0){
-			sala.to(mesa._noMesa).emit('timer-decrement-reset', [tiempoInicial, nick]);
-			tiempoInicial--;
-		}else{
-			clearInterval(intervalos[mesa._noMesa]);
-			//En caso de que el usuario que gano no reinicie el juego en 30 segundos 
-			//la mesa toma la misma configuracion de la partida anterior
-			if(!mesa._startGame){
-				//Se reinicializan los valores
-				mesa._puntosAcumulados = 0;
-				mesa._tablero = util.inicializarTablero(mesa._tablero);
-				mesa._turnoEnMesa = 0;
-				mesa._bloqueoPorReinicio = false;
-				
-				//Se emite un evento para reiniciar las capturas de todos los jugadores en session
-				//Se reinician los turnos perdidos de todos los jugadores al reiniciar el juego
-				sala.to(mesa._noMesa).emit('updateCapturaTurnos');
-				
-				//Si la mesa tiene algun jugador activo
-				if(mesa._noJugadoresActivos > 0){
-					mesa._ficha = mesa._listaJugadores[0]._patrocinador.nombre;
-				}
-				
-				//Se obtienen nuevos patrocinadores de pago
-				patrocinadorController.patrocinadores.getPatrocinadoresPago(function(r) {
-					if(!r.err){
-						mesa._listaPatrocinadores = util.obtenerPatrocinadores(listPatrocinadoresDefault, r.desc);
-						mesa._ficha = mesa._listaPatrocinadores[0]._nombre;
-						//Se actualiza el valor de las mesas (json) con el nuevo objeto
-						mesas[mesa._noMesa] = mesa;
-						//Se actualizan las fichas del usuario en su session
-						sala.to(mesa._noMesa).emit('updateFichasUsers', mesa._noMesa);
-						//Se reinicia el juego y se emiten a todos los clientes las nuevas configuraciones
-						sala.to(mesa._noMesa).emit('closeModalReset');
-						sala.to(mesa._noMesa).emit('cargaConfiguracion', mesa);
-						io.of('/lobby').emit('sendUsersMesas', mesas);
-					}
-				});
-			}
-		}
-	}, 1000);
-	
+    console.log("🎯 [CRONÓMETRO] INICIADO para mesa:", mesa._noMesa);
+    
+    var tiempoInicial = 30;
+    intervalos[mesa._noMesa] = setInterval(async function() {
+        console.log("⏰ [CRONÓMETRO] Tiempo restante:", tiempoInicial, "segundos");
+        
+        if(tiempoInicial >= 0){
+            sala.to(mesa._noMesa).emit('timer-decrement-reset', [tiempoInicial, nick]);
+            tiempoInicial--;
+        }else{
+            console.log("🚨 [CRONÓMETRO] TIEMPO AGOTADO - Iniciando reinicio...");
+            clearInterval(intervalos[mesa._noMesa]);
+            
+            console.log("🔍 [CRONÓMETRO] mesa._startGame =", mesa._startGame);
+            
+            if(!mesa._startGame){
+                console.log("✅ [CRONÓMETRO] Condición cumplida - Reiniciando juego...");
+                
+                //Se reinicializan los valores
+                mesa._puntosAcumulados = 0;
+                mesa._tablero = util.inicializarTablero(mesa._tablero);
+                mesa._turnoEnMesa = 0;
+                mesa._bloqueoPorReinicio = false;
+                
+                console.log("📤 [CRONÓMETRO] Emitiendo updateCapturaTurnos...");
+                sala.to(mesa._noMesa).emit('updateCapturaTurnos');
+                
+                if(mesa._noJugadoresActivos > 0){
+                    mesa._ficha = mesa._listaJugadores[0]._patrocinador.nombre;
+                }
+                
+                // SOLUCIÓN TEMPORAL - SALTAR PATROCINADORES DE PAGO
+                console.log("🔧 [CRONÓMETRO] Usando patrocinadores por defecto");
+                usarPatrocinadoresDefault();
+                
+                function usarPatrocinadoresDefault() {
+                    console.log("🔄 [CRONÓMETRO] Ejecutando usarPatrocinadoresDefault()");
+                    
+                    mesa._listaPatrocinadores = listPatrocinadoresDefault;
+                    mesa._ficha = mesa._listaPatrocinadores[0]._nombre;
+                    mesas[mesa._noMesa] = mesa;
+                    
+                    console.log("📤 [CRONÓMETRO] Emitiendo updateFichasUsers...");
+                    sala.to(mesa._noMesa).emit('updateFichasUsers', mesa._noMesa);
+                    
+                    console.log("📤 [CRONÓMETRO] Emitiendo closeModalReset...");
+                    sala.to(mesa._noMesa).emit('closeModalReset');
+                    
+                    console.log("📤 [CRONÓMETRO] Emitiendo cargaConfiguracion...");
+                    sala.to(mesa._noMesa).emit('cargaConfiguracion', mesa);
+                    
+                    console.log("📤 [CRONÓMETRO] Emitiendo sendUsersMesas...");
+                    io.of('/lobby').emit('sendUsersMesas', mesas);
+                    
+                    console.log("🎉 [CRONÓMETRO] REINICIO COMPLETADO EXITOSAMENTE");
+                }
+            } else {
+                console.log("❌ [CRONÓMETRO] NO se reinicia porque mesa._startGame = true");
+            }
+        }
+    }, 1000);
 }
-
 // funcion que inicializa el cronometro
 function cronometro(sala, mesa, nick) {
 	
@@ -990,53 +1004,61 @@ module.exports =  function (io, mesas, session, listPatrocinadoresDefault) {
 			cronometroReinicioJuego(io, sala, mesa, mesas, session.jugador._nick, listPatrocinadoresDefault);
 		});
 		
-		
 		// peticion para reiniciar el juego
-		socket.on('reiniciarJuego', function(data) {
-			//Se obtiene la mesa
-			mesa = mesas[data.mesa];
-			
-			//Si la mesa no esta iniciada se puede reiniciar
-			if(!mesa._startGame){
-				//Se inicializa la variable con la session del socket request
-				session = socket.request.session;
-				if(mesa._listaJugadores[0]._nick == session.jugador._nick){
-					//Se detiene el cronometro de reinicio de partida
-					clearInterval(intervalos[mesa._noMesa]);
-					mesa._epoca = data.epoca;
-					mesa._puntosAcumulados = 0;
-					mesa._tiempoTirada = data.tiempoTirada;
-					mesa._tablero = util.inicializarTablero(mesa._tablero);
-					mesa._turnoEnMesa = 0;
-					mesa._bloqueoPorReinicio = false;
-					
-					//Se emite un evento para reiniciar las capturas de todos los jugadores en session
-					//Se reinician los turnos perdidos de todos los jugadores al reiniciar el juego
-					sala.to(mesa._noMesa).emit('updateCapturaTurnos');
-					
-					//Se obtienen nuevos patrocinadores de pago
-					patrocinadorController.patrocinadores.getPatrocinadoresPago(function(r) {
-						if(!r.err){
-							mesa._listaPatrocinadores = util.obtenerPatrocinadores(listPatrocinadoresDefault, r.desc);
-							mesa._ficha = mesa._listaPatrocinadores[0]._nombre;
-							//Se actualiza el valor de las mesas (json) con el nuevo objeto
-							mesas[data.mesa] = mesa;
-							//Se actualizan las fichas del usuario en su session
-							sala.to(mesa._noMesa).emit('updateFichasUsers', mesa._noMesa);
-							//Se reinicia el juego y se emiten a todos los clientes las nuevas configuraciones
-							sala.to(mesa._noMesa).emit('closeModalReset');
-							sala.to(mesa._noMesa).emit('cargaConfiguracion', mesa);
-							io.of('/lobby').emit('sendUsersMesas', mesas);
-						}
-					});
-					
-				}else{
-					socket.emit('notificacion', {'title' : '¡Oops!', 'msg' : 'No tienes permitido realizar esta acción', 'tipo' : 'danger'});
-				}
-			}else{
-				socket.emit('notificacion', {'title' : '¡Oops!', 'msg' : 'La mesa esta activa y no puede ser reiniciada', 'tipo' : 'warning'});
-			}
-		});
+socket.on('reiniciarJuego', async function(data) { // ← Agregar async aquí
+    //Se obtiene la mesa
+    mesa = mesas[data.mesa];
+    
+    //Si la mesa no esta iniciada se puede reiniciar
+    if(!mesa._startGame){
+        //Se inicializa la variable con la session del socket request
+        session = socket.request.session;
+        if(mesa._listaJugadores[0]._nick == session.jugador._nick){
+            //Se detiene el cronometro de reinicio de partida
+            clearInterval(intervalos[mesa._noMesa]);
+            mesa._epoca = data.epoca;
+            mesa._puntosAcumulados = 0;
+            mesa._tiempoTirada = data.tiempoTirada;
+            mesa._tablero = util.inicializarTablero(mesa._tablero);
+            mesa._turnoEnMesa = 0;
+            mesa._bloqueoPorReinicio = false;
+            
+            //Se emite un evento para reiniciar las capturas de todos los jugadores en session
+            //Se reinician los turnos perdidos de todos los jugadores al reiniciar el juego
+            sala.to(mesa._noMesa).emit('updateCapturaTurnos');
+            
+            // ⭐⭐ CORREGIDO - Usar async/await ⭐⭐
+            try {
+                console.log("🔄 [REINICIO MANUAL] Obteniendo patrocinadores...");
+                const r = await patrocinadorController.patrocinadores.getPatrocinadoresPago();
+                console.log("✅ [REINICIO MANUAL] Patrocinadores obtenidos:", r.desc.length);
+                
+                if(!r.err){
+                    mesa._listaPatrocinadores = util.obtenerPatrocinadores(listPatrocinadoresDefault, r.desc);
+                    mesa._ficha = mesa._listaPatrocinadores[0]._nombre;
+                    //Se actualiza el valor de las mesas (json) con el nuevo objeto
+                    mesas[data.mesa] = mesa;
+                    //Se actualizan las fichas del usuario en su session
+                    sala.to(mesa._noMesa).emit('updateFichasUsers', mesa._noMesa);
+                    //Se reinicia el juego y se emiten a todos los clientes las nuevas configuraciones
+                    sala.to(mesa._noMesa).emit('closeModalReset');
+                    sala.to(mesa._noMesa).emit('cargaConfiguracion', mesa);
+                    io.of('/lobby').emit('sendUsersMesas', mesas);
+                    
+                    console.log("🎉 [REINICIO MANUAL] Reinicio completado exitosamente");
+                }
+            } catch (error) {
+                console.error("❌ [REINICIO MANUAL] Error:", error);
+                socket.emit('notificacion', {'title' : 'Error', 'msg' : 'Error al reiniciar el juego', 'tipo' : 'danger'});
+            }
+            
+        }else{
+            socket.emit('notificacion', {'title' : '¡Oops!', 'msg' : 'No tienes permitido realizar esta acción', 'tipo' : 'danger'});
+        }
+    }else{
+        socket.emit('notificacion', {'title' : '¡Oops!', 'msg' : 'La mesa esta activa y no puede ser reiniciada', 'tipo' : 'warning'});
+    }
+});
 		
 		socket.on('upCaptureTurnoSess', function(){
 			//Se inicializa la variable session y se obtiene el request
