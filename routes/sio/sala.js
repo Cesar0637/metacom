@@ -229,130 +229,210 @@ module.exports =  function (io, mesas, listPatrocinadoresDefault, statusMesas) {
 				socket.emit('redirect', '/');
 			}
 		});
+socket.on('definePatrocinador', async function(data, callback){
+    try {
+        // Validación inicial del callback
+        if (typeof callback !== 'function') {
+            console.error('❌ Callback no es una función en definePatrocinador');
+            return;
+        }
 
+        // Se inicializa la variable con la session del socket request
+        var session = socket.request.session;
+        
+        // Validar que la sesión y el jugador existan
+        if (!session || !session.jugador) {
+            socket.emit('notificacion', {'title': 'Error', 'msg': 'Sesión no válida', 'tipo': 'error'});
+            callback(true); // Asignada = true para evitar procesamiento
+            return;
+        }
 
-		socket.on('definePatrocinador', function(data, callback){
-			//Se inicializa la variable con la session del socket request
-			var session = socket.request.session;
-			mesa = mesas['mesa-10'];
-			//si el juego no ha iniciado y el no de jugadores activos es minimo o igual a 6 y el jugador que se conecto esta como inactivo
-			if(!mesa._startGame && mesa._noJugadoresActivos < 6) {
-				//Se busca el usuario en session en la coleccion de lista de jugadores
-				for(var i in mesa._listaJugadores){
-					if(mesa._listaJugadores[i]._nick == session.jugador._nick){
-						session.jugador._activo = mesa._listaJugadores[i]._activo;
-						session.save();
-						socket.request.session = session;
-						break;
-					}
-				}
-				
-				//Si el jugador esta como inactivo
-				if(session.jugador._activo == false){
-					//Variable que indicara si la ficha ya ha sido asignada anteriormente
-					var asignada = false;
+        mesa = mesas['mesa-10'];
+        
+        // Validar que la mesa exista
+        if (!mesa) {
+            socket.emit('notificacion', {'title': 'Error', 'msg': 'Mesa no encontrada', 'tipo': 'error'});
+            callback(true);
+            return;
+        }
 
-					//Se analiza si la ficha seleccionada no ha sido asignada o eliminada del array
-					if(listaAuxiliarPatrocinadores[data] != undefined){
-						//Como la ficha no ha sido eliminada se analiza si ya ha sido asignada
-						var idFichaSeleccionada = listaAuxiliarPatrocinadores[data]._id;
-						//Se itera sobre los jugadores buscando que la ficha ya haya sido asignada a uno
-						for(var i = 0; i < mesa._listaJugadores.length; i++){
-							//Si el patrocinador ya ha sido asignado antes y el jugador que clickeo es diferente del q se le asigno
-							if(mesa._listaJugadores[i]._patrocinador != null 
-									&& mesa._listaJugadores[i]._patrocinador.id == idFichaSeleccionada 
-									&& mesa._listaJugadores[i]._nick != session.jugador._nick){
-								asignada = true;
-								//Se emite que la ficha ya ha sido asignada
-								socket.emit('notificacion', {'title' : '¡Oops!', 'msg' : 'Te ganaron la ficha, selecciona otra por favor', 'tipo' : 'warning'});
-								break;
-							}
-						}
-					}else{
-						logger.info('Mesa 10 la ficha: ' +  data  +' fue seleccionada 2 o más veces');
-						console.info('Data: ' + data);						
-						console.info('Jugador: ' + session.jugador._nick);
-						console.log('Patrocinadores auxiliares');
-						console.log(listaAuxiliarPatrocinadores);
-						logger.info('Fin Mesa 10');
+        // Si el juego no ha iniciado y el no de jugadores activos es mínimo o igual a 6 
+        // y el jugador que se conectó está como inactivo
+        if (!mesa._startGame && mesa._noJugadoresActivos < 6) {
+            
+            // Buscar el usuario en session en la colección de lista de jugadores
+            let jugadorEncontrado = false;
+            for (var i in mesa._listaJugadores) {
+                if (mesa._listaJugadores[i]._nick == session.jugador._nick) {
+                    session.jugador._activo = mesa._listaJugadores[i]._activo;
+                    session.save();
+                    socket.request.session = session;
+                    jugadorEncontrado = true;
+                    break;
+                }
+            }
 
-						//si la ficha seleccionada arroja un udefined quiere decir que ha sido eliminada del array por que 
-						//ya ha sido asignada
-						//Se emite que la ficha ya ha sido asignada
-						socket.emit('notificacion', {'title' : '¡Oops!', 'msg' : 'Te ganaron la ficha, selecciona otra por favor', 'tipo' : 'warning'});
-						//Se coloca en true la bandera para indicar que la ficha ha sido eliminada del array y ya fue asignada
-						asignada = true;
-					}
-					
-					
-					if(!asignada){
-						//Se le asigna la ficha al jugador en la session y en la lista de jugadores
-						session.jugador._activo = true;
-						session.jugador._patrocinador = {
-									id: listaAuxiliarPatrocinadores[data]._id, 
-									nombre : listaAuxiliarPatrocinadores[data]._nombre, 
-									ficha: listaAuxiliarPatrocinadores[data]._ficha,
-									isDefault : listaAuxiliarPatrocinadores[data]._isDefault
-								};
-						session.save();
-						socket.request.session = session;
-						
-						//Se actualiza el jugador en el array de jugadores de la mesa
-						for(var i in mesa._listaJugadores) {
-							if(mesa._listaJugadores[i]._nick == session.jugador._nick){
-								// Se actualizan los valores del jugador en la mesa
-								mesa._listaJugadores[i] = session.jugador;
-								//Se incrementa el numero de jugadores activos
-								mesa._noJugadoresActivos++;
-								
-								//Se define la ficha inicial que tira en la mesa
-								if(mesa._listaJugadores[0]._patrocinador  == null && i != 0){
-									var auxJugador = mesa._listaJugadores[0];
-									mesa._listaJugadores[0] = mesa._listaJugadores[i];
-									mesa._listaJugadores[i] = auxJugador;
-								}
-								
-								//mesa._ficha = mesa._listaJugadores[0]._patrocinador.nombre;
-								
-								//Se elimina la ficha seleccionada por el jugador de la lista auxiliar
-								listaAuxiliarPatrocinadores.splice(data, 1);
-								//Se emite de actualizacion sobre el jugador
-								socket.emit('updateJugador', session.jugador);
-								
-								//Se actualizan las fichas en las vistas de los demas jugadores
-								sala.to(mesa._noMesa).emit('updateListFichas', listaAuxiliarPatrocinadores);
-								
-								//Se actualiza la lista de jugadores activos en la vista
-								sala.to(mesa._noMesa).emit('updateListJugadores', mesa._listaJugadores);
-								
-								//Se verifica si el numero de jugadores activos es mayor a 1 para habilitar el boton de iniciar juego
-								if(mesa._noJugadoresActivos > 1){
-									//Se emite el desbloqueo del boton de iniciar juego
-									sala.to(mesa._noMesa).emit('bloqueaIniciarJuego', mesa._noJugadoresActivos, mesa._startGame, mesa._bloqueoPorReinicio);
-								}
-								//Se envian los usuarios activos al lobby
-								mesas[mesa._noMesa] = mesa;
-								io.of('/lobby').emit('sendUsersMesas', mesas);
-								break;
-							}
-						}
-					}
-					//Se envia si fue asignada o no la ficha
-					callback(asignada);
-				}//fin if
-				else{
-					//En caso de que se encuentre al jugador como activo 
-					socket.emit('notificacion', {'title' : '¡Oops!', 'msg' : 'Te encuentras activo sobre la mesa', 'tipo' : 'warning'});
-					socket.emit('closeModalFicha')
-				}
-			}else if(mesa._startGame && mesa._listaJugadores.length <= 6){
-				//En caso de que el juego ya hay iniciado y los jugadores sean menores a 6 y el jugador este como inactivo
-				//se le notifica que el juego ha empezado sin el
-				socket.emit('notificacion', {'title' : '¡Oops!', 'msg' : 'Empezaron la partida sin ti, espera a la siguiente ronda', 'tipo' : 'warning'});
-				socket.emit('closeModalFicha')
-			}
-		});
-		
+            // Si no se encontró el jugador en la mesa
+            if (!jugadorEncontrado) {
+                socket.emit('notificacion', {'title': 'Error', 'msg': 'Jugador no encontrado en la mesa', 'tipo': 'error'});
+                callback(true);
+                return;
+            }
+
+            // Si el jugador está como inactivo
+            if (session.jugador._activo == false) {
+                // Variable que indicará si la ficha ya ha sido asignada anteriormente
+                var asignada = false;
+
+                // Validar que el índice data sea válido
+                if (typeof data !== 'number' || data < 0 || data >= listaAuxiliarPatrocinadores.length) {
+                    console.error('❌ Índice de ficha inválido:', data);
+                    socket.emit('notificacion', {'title': '¡Oops!', 'msg': 'Ficha no válida, selecciona otra por favor', 'tipo': 'warning'});
+                    callback(true);
+                    return;
+                }
+
+                // Se analiza si la ficha seleccionada no ha sido asignada o eliminada del array
+                if (listaAuxiliarPatrocinadores[data] != undefined) {
+                    // Como la ficha no ha sido eliminada se analiza si ya ha sido asignada
+                    var idFichaSeleccionada = listaAuxiliarPatrocinadores[data]._id;
+                    
+                    // Se itera sobre los jugadores buscando que la ficha ya haya sido asignada a uno
+                    for (var i = 0; i < mesa._listaJugadores.length; i++) {
+                        // Si el patrocinador ya ha sido asignado antes y el jugador que clickeo es diferente del que se le asignó
+                        if (mesa._listaJugadores[i]._patrocinador != null &&
+                            mesa._listaJugadores[i]._patrocinador.id == idFichaSeleccionada &&
+                            mesa._listaJugadores[i]._nick != session.jugador._nick) {
+                            asignada = true;
+                            // Se emite que la ficha ya ha sido asignada
+                            socket.emit('notificacion', {'title': '¡Oops!', 'msg': 'Te ganaron la ficha, selecciona otra por favor', 'tipo': 'warning'});
+                            break;
+                        }
+                    }
+                } else {
+                    logger.info('Mesa 10 la ficha: ' + data + ' fue seleccionada 2 o más veces');
+                    console.info('Data: ' + data);
+                    console.info('Jugador: ' + session.jugador._nick);
+                    console.log('Patrocinadores auxiliares');
+                    console.log(listaAuxiliarPatrocinadores);
+                    logger.info('Fin Mesa 10');
+
+                    // Si la ficha seleccionada arroja un undefined quiere decir que ha sido eliminada del array 
+                    // porque ya ha sido asignada
+                    socket.emit('notificacion', {'title': '¡Oops!', 'msg': 'Te ganaron la ficha, selecciona otra por favor', 'tipo': 'warning'});
+                    // Se coloca en true la bandera para indicar que la ficha ha sido eliminada del array y ya fue asignada
+                    asignada = true;
+                }
+
+                if (!asignada) {
+                    // Validar que la ficha aún exista
+                    if (!listaAuxiliarPatrocinadores[data]) {
+                        socket.emit('notificacion', {'title': '¡Oops!', 'msg': 'La ficha ya no está disponible', 'tipo': 'warning'});
+                        callback(true);
+                        return;
+                    }
+
+                    // Se le asigna la ficha al jugador en la session y en la lista de jugadores
+                    session.jugador._activo = true;
+                    session.jugador._patrocinador = {
+                        id: listaAuxiliarPatrocinadores[data]._id,
+                        nombre: listaAuxiliarPatrocinadores[data]._nombre,
+                        ficha: listaAuxiliarPatrocinadores[data]._ficha,
+                        isDefault: listaAuxiliarPatrocinadores[data]._isDefault
+                    };
+                    
+                    try {
+                        await session.save();
+                        socket.request.session = session;
+                    } catch (saveError) {
+                        console.error('❌ Error al guardar sesión:', saveError);
+                        socket.emit('notificacion', {'title': 'Error', 'msg': 'Error al guardar datos', 'tipo': 'error'});
+                        callback(true);
+                        return;
+                    }
+
+                    // Se actualiza el jugador en el array de jugadores de la mesa
+                    let jugadorActualizado = false;
+                    for (var i in mesa._listaJugadores) {
+                        if (mesa._listaJugadores[i]._nick == session.jugador._nick) {
+                            // Se actualizan los valores del jugador en la mesa
+                            mesa._listaJugadores[i] = session.jugador;
+                            // Se incrementa el numero de jugadores activos
+                            mesa._noJugadoresActivos++;
+                            
+                            // Se define la ficha inicial que tira en la mesa
+                            if (mesa._listaJugadores[0]._patrocinador == null && i != 0) {
+                                var auxJugador = mesa._listaJugadores[0];
+                                mesa._listaJugadores[0] = mesa._listaJugadores[i];
+                                mesa._listaJugadores[i] = auxJugador;
+                            }
+                            
+                            // Se elimina la ficha seleccionada por el jugador de la lista auxiliar
+                            listaAuxiliarPatrocinadores.splice(data, 1);
+                            
+                            // Se emite actualización sobre el jugador
+                            socket.emit('updateJugador', session.jugador);
+                            
+                            // Se actualizan las fichas en las vistas de los demás jugadores
+                            sala.to(mesa._noMesa).emit('updateListFichas', listaAuxiliarPatrocinadores);
+                            
+                            // Se actualiza la lista de jugadores activos en la vista
+                            sala.to(mesa._noMesa).emit('updateListJugadores', mesa._listaJugadores);
+                            
+                            // Se verifica si el numero de jugadores activos es mayor a 1 para habilitar el boton de iniciar juego
+                            if (mesa._noJugadoresActivos > 1) {
+                                // Se emite el desbloqueo del boton de iniciar juego
+                                sala.to(mesa._noMesa).emit('bloqueaIniciarJuego', mesa._noJugadoresActivos, mesa._startGame, mesa._bloqueoPorReinicio);
+                            }
+                            
+                            // Se envian los usuarios activos al lobby
+                            mesas[mesa._noMesa] = mesa;
+                            io.of('/lobby').emit('sendUsersMesas', mesas);
+                            
+                            jugadorActualizado = true;
+                            break;
+                        }
+                    }
+
+                    if (!jugadorActualizado) {
+                        console.error('❌ No se pudo actualizar el jugador en la mesa');
+                        socket.emit('notificacion', {'title': 'Error', 'msg': 'Error al actualizar jugador', 'tipo': 'error'});
+                    }
+                }
+                
+                // Se envía si fue asignada o no la ficha - CALLBACK SIEMPRE SE LLAMA
+                console.log('✅ Callback ejecutado con asignada:', asignada);
+                callback(asignada);
+                
+            } else {
+                // En caso de que se encuentre al jugador como activo 
+                socket.emit('notificacion', {'title': '¡Oops!', 'msg': 'Te encuentras activo sobre la mesa', 'tipo': 'warning'});
+                socket.emit('closeModalFicha');
+                callback(true); // Importante: llamar el callback aquí también
+            }
+        } else if (mesa._startGame && mesa._listaJugadores.length <= 6) {
+            // En caso de que el juego ya haya iniciado y los jugadores sean menores a 6 y el jugador este como inactivo
+            // se le notifica que el juego ha empezado sin él
+            socket.emit('notificacion', {'title': '¡Oops!', 'msg': 'Empezaron la partida sin ti, espera a la siguiente ronda', 'tipo': 'warning'});
+            socket.emit('closeModalFicha');
+            callback(true); // Importante: llamar el callback aquí también
+        } else {
+            // Caso adicional: mesa llena o condiciones no cumplidas
+            socket.emit('notificacion', {'title': '¡Oops!', 'msg': 'La mesa está llena o no cumple las condiciones', 'tipo': 'warning'});
+            socket.emit('closeModalFicha');
+            callback(true);
+        }
+
+    } catch (error) {
+        console.error('❌ Error crítico en definePatrocinador:', error);
+        socket.emit('notificacion', {'title': 'Error', 'msg': 'Error interno del servidor', 'tipo': 'error'});
+        
+        // Asegurar que el callback se llame incluso en caso de error
+        if (typeof callback === 'function') {
+            callback(true);
+        }
+    }
+});
 		/*fin mesa 10*/
 		
 		socket.on('conectado', function(noMesa){
